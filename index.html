@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/js/bootstrap5-toggle.jquery.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+function systemlog(log){
+    document.getElementById("chart_div").innerHTML=document.getElementById("chart_div").innerHTML+"<br>"+log;
+}
+// Load the Visualization API and the corechart package.
+google.charts.load("current",{'packages':['table','corechart']});
+
+// Set a callback to run when the Google Visualization API is loaded.
+google.charts.setOnLoadCallback(setInt);
+
+function setInt(){
+setdata();
+setInterval(drawChart,1000);
+
+$("input").on("change",savedata);
+
+
+}
+
+function drawChart(){
+
+    //現実時間表示 - 表示エリン時間
+    var erin_time_switch = document.getElementById("time_switch").checked;
+
+    //基準日時
+    var base_datetime=new Date('2023/07/05 11:00:00');
+    //補正値ミリ秒。船の出航間隔は11分（カブベルファストは6分）なので、最大660000。
+    var rivised_value1 = Number(document.getElementById("rev1").value)*1000;
+    var rivised_value2 = Number(document.getElementById("rev2").value)*1000;
+    var rivised_value3 = Number(document.getElementById("rev3").value)*1000;
+    var rivised_value4 = Number(document.getElementById("rev4").value)*1000;
+    var rivised_value5 = Number(document.getElementById("rev5").value)*1000;
+    var rivised_value6 = Number(document.getElementById("rev6").value)*1000;
+    var base_datetime1 = new Date();
+    var base_datetime2 = new Date();
+    var base_datetime3 = new Date();
+    var base_datetime4 = new Date();
+    var base_datetime5 = new Date();
+    var base_datetime6 = new Date();
+    base_datetime1.setTime(base_datetime.getTime()+rivised_value1);
+    base_datetime2.setTime(base_datetime.getTime()+rivised_value2);
+    base_datetime3.setTime(base_datetime.getTime()+rivised_value3);
+    base_datetime4.setTime(base_datetime.getTime()+rivised_value4);
+    base_datetime5.setTime(base_datetime.getTime()+rivised_value5);
+    base_datetime6.setTime(base_datetime.getTime()+rivised_value6);
+    //次回の出航時間(基準日時+(切り上げ(現在日時-基準日時)/6分)*6分)
+    var next_departure_time1 = new Date();
+    var next_departure_time2 = new Date();
+    var next_departure_time3 = new Date();
+    var next_departure_time4 = new Date();
+    var next_departure_time5 = new Date();
+    var next_departure_time6 = new Date();
+    var now = new Date();
+    var departure_interval = 6;
+    next_departure_time1.setTime(base_datetime1.getTime()+Math.ceil((now.getTime()-base_datetime1.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
+    next_departure_time2.setTime(base_datetime2.getTime()+Math.ceil((now.getTime()-base_datetime2.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
+    next_departure_time3.setTime(base_datetime3.getTime()+Math.ceil((now.getTime()-base_datetime3.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
+    next_departure_time4.setTime(base_datetime4.getTime()+Math.ceil((now.getTime()-base_datetime4.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
+    next_departure_time5.setTime(base_datetime5.getTime()+Math.ceil((now.getTime()-base_datetime5.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
+    next_departure_time6.setTime(base_datetime6.getTime()+Math.ceil((now.getTime()-base_datetime6.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
+
+    if(erin_time_switch){
+        var next_departure_time1f = getErinTime(next_departure_time1);
+        var next_departure_time2f = getErinTime(next_departure_time2);
+        var next_departure_time3f = getErinTime(next_departure_time3);
+        var next_departure_time4f = getErinTime(next_departure_time4);
+        var next_departure_time5f = getErinTime(next_departure_time5);
+        var next_departure_time6f = getErinTime(next_departure_time6);
+    }else{
+        var next_departure_time1f = formatRealTime(next_departure_time1);
+        var next_departure_time2f = formatRealTime(next_departure_time2);
+        var next_departure_time3f = formatRealTime(next_departure_time3);
+        var next_departure_time4f = formatRealTime(next_departure_time4);
+        var next_departure_time5f = formatRealTime(next_departure_time5);
+        var next_departure_time6f = formatRealTime(next_departure_time6);
+    }
+    document.getElementById("next_departure1").innerHTML=next_departure_time1f;
+    document.getElementById("next_departure2").innerHTML=next_departure_time2f;
+    document.getElementById("next_departure3").innerHTML=next_departure_time3f;
+    document.getElementById("next_departure4").innerHTML=next_departure_time4f;
+    document.getElementById("next_departure5").innerHTML=next_departure_time5f;
+    document.getElementById("next_departure6").innerHTML=next_departure_time6f;
+
+    //残り時間
+    var time_left1 = new Date(next_departure_time1-now);
+    var time_left2 = new Date(next_departure_time2-now);
+    var time_left3 = new Date(next_departure_time3-now);
+    var time_left4 = new Date(next_departure_time4-now);
+    var time_left5 = new Date(next_departure_time5-now);
+    var time_left6 = new Date(next_departure_time6-now);
+    
+    if(erin_time_switch){
+        var time_left1f = getErinTime(time_left1);
+        var time_left2f = getErinTime(time_left2);
+        var time_left3f = getErinTime(time_left3);
+        var time_left4f = getErinTime(time_left4);
+        var time_left5f = getErinTime(time_left5);
+        var time_left6f = getErinTime(time_left6);
+    }else{
+        var time_left1f = formatRealTime(time_left1).slice(3);
+        var time_left2f = formatRealTime(time_left2).slice(3);
+        var time_left3f = formatRealTime(time_left3).slice(3);
+        var time_left4f = formatRealTime(time_left4).slice(3);
+        var time_left5f = formatRealTime(time_left5).slice(3);
+        var time_left6f = formatRealTime(time_left6).slice(3);
+    }
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('string','ch');
+    data.addColumn('datetime','Next Departure');
+
+    data = google.visualization.arrayToDataTable([
+        ["ch", "Next Departure", { role: "annotation" } ],
+        ['1ch',time_left1,time_left1f],
+        ['2ch',time_left2,time_left2f],
+        ['3ch',time_left3,time_left3f],
+        ['4ch',time_left4,time_left4f],
+        ['5ch',time_left5,time_left5f],
+        ['6ch',time_left6,time_left6f]
+      ]);
+    // Set chart options
+    var options={'title':'',
+                 'width':300,
+                 'height':290,
+                 'hAxis':{
+                      format: 'mm:ss',
+                      viewWindow:{
+                          max:new Date(departure_interval*60*1000),
+                          min:new Date(0)
+                      }
+                 },
+                 'legend': {
+                          position: 'none'    // 凡例の設置場所を'in'に設定
+                      }
+                 };
+    var view = new google.visualization.DataView(data);
+      view.setColumns([0, 1,
+                       { calc: "stringify",
+                         sourceColumn: 1,
+                         type: "string",
+                         role: "annotation" },
+                       2]);
+
+//    options.hAxis.viewWindow.max = new Date(departure_interval*60*1000);
+ //   options.hAxis.viewWindow.max = new Date(0);
+
+    //Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+    chart.draw(data,options);
+
+    //到着待ち時間(分)
+    var boarding_time=2;
+
+    var next_arrival1=new Date(next_departure_time1.getTime()+boarding_time*60*1000);
+    var next_arrival2=new Date(next_departure_time2.getTime()+boarding_time*60*1000);
+    var next_arrival3=new Date(next_departure_time3.getTime()+boarding_time*60*1000);
+    var next_arrival4=new Date(next_departure_time4.getTime()+boarding_time*60*1000);
+    var next_arrival5=new Date(next_departure_time5.getTime()+boarding_time*60*1000);
+    var next_arrival6=new Date(next_departure_time6.getTime()+boarding_time*60*1000);
+    if(erin_time_switch){
+        var next_arrival1f = getErinTime(next_arrival1);
+        var next_arrival2f = getErinTime(next_arrival2);
+        var next_arrival3f = getErinTime(next_arrival3);
+        var next_arrival4f = getErinTime(next_arrival4);
+        var next_arrival5f = getErinTime(next_arrival5);
+        var next_arrival6f = getErinTime(next_arrival6);
+    }else{
+        var next_arrival1f = formatRealTime(next_arrival1);
+        var next_arrival2f = formatRealTime(next_arrival2);
+        var next_arrival3f = formatRealTime(next_arrival3);
+        var next_arrival4f = formatRealTime(next_arrival4);
+        var next_arrival5f = formatRealTime(next_arrival5);
+        var next_arrival6f = formatRealTime(next_arrival6);
+    }
+
+    document.getElementById("next_arrival1").innerHTML=next_arrival1f;
+    document.getElementById("next_arrival2").innerHTML=next_arrival2f;
+    document.getElementById("next_arrival3").innerHTML=next_arrival3f;
+    document.getElementById("next_arrival4").innerHTML=next_arrival4f;
+    document.getElementById("next_arrival5").innerHTML=next_arrival5f;
+    document.getElementById("next_arrival6").innerHTML=next_arrival6f;
+
+    if(erin_time_switch){
+        document.getElementById("time_display").innerHTML=getErinTime(now);
+    }else{
+        document.getElementById("time_display").innerHTML=formatRealTime(now);
+    }
+
+}
+function formatRealTime(realtime = new Date()){
+    return realtime.getHours().toString().padStart(2, "0")+":"+realtime.getMinutes().toString().padStart(2, "0")+":"+realtime.getSeconds().toString().padStart(2, "0");
+}
+function getErinTime(realtime = new Date()){
+
+    var sampleErinTime = 2;
+    var sampleRealTime = new Date("2023-07-10T18:38:11");
+    var ErinHourSecond = 90;
+    if(realtime)var now = new Date();
+    var ErinTime=(((realtime.getTime()-sampleRealTime.getTime())/(ErinHourSecond*1000)+sampleErinTime)%24) ;
+    if( ErinTime<0) ErinTime=ErinTime+24;
+    var ErinHour = Math.trunc(ErinTime);
+    var ErinMinute = Math.trunc((ErinTime - ErinHour)*60);
+    return "ET "+ErinHour.toString().padStart(2,"0") + ":" + ErinMinute.toString().padStart(2,"0");
+}
+function savedata(){
+
+    var time_switch = $("#time_switch").prop("checked");
+    var rev = $("#rev").val();
+    var rev1 = $("#rev1").val();
+    var rev2 = $("#rev2").val();
+    var rev3 = $("#rev3").val();
+    var rev4 = $("#rev4").val();
+    var rev5 = $("#rev5").val();
+    var rev6 = $("#rev6").val();
+    
+    var data = [['time_switch',time_switch],
+                ['rev',rev],
+                ['rev1',rev1],
+                ['rev2',rev2],
+                ['rev3',rev3],
+                ['rev4',rev4],
+                ['rev5',rev5],
+                ['rev6',rev6]];
+    var jsondata = JSON.stringify(data);
+    //console.log(jsondata);
+    console.log(jsondata);
+    localStorage.setItem("jsondata", jsondata);
+    console.log(localStorage.getItem("jsondata"));
+}
+
+function setdata(){
+
+    var jsondata = localStorage.getItem("jsondata");
+    if(jsondata){
+        var data = JSON.parse(jsondata);
+
+        data.forEach(function(e){
+            if(e[0]=='time_switch'){
+                console.log("test1");
+                console.log(e);
+                if(e[1]){
+                    $("#time_switch").bootstrapToggle('on');
+                }else{
+                    $("#time_switch").bootstrapToggle('off');
+                }
+                
+                
+            }else{
+                console.log("test2");
+                console.log(e[0]);
+                console.log($(e[0]));
+                $("#"+e[0]).val(e[1]);
+            }
+        });
+    }
+}
+</script>
+<div>カブ→ベルファスト</div>
+<input id="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+<label id="time_display"></label> 補正値<input type="number" id="rev" min="0" max="660" value="10">
+<table height="50%">
+<tbody>
+    <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+    <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure1"></div></td><td><input type="number" id="rev1" min="0" max="660" value="10"></td><td align="center"><div id="next_arrival1"></div></td></tr>
+    <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure2"></div></td><td><input type="number" id="rev2" min="0" max="660" value="20"></td><td align="center"><div id="next_arrival2"></div></td></tr>
+    <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure3"></div></td><td><input type="number" id="rev3" min="0" max="660" value="30"></td><td align="center"><div id="next_arrival3"></div></td></tr>
+    <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure4"></div></td><td><input type="number" id="rev4" min="0" max="660" value="40"></td><td align="center"><div id="next_arrival4"></div></td></tr>
+    <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure5"></div></td><td><input type="number" id="rev5" min="0" max="660" value="50"></td><td align="center"><div id="next_arrival5"></div></td></tr>
+    <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure6"></div></td><td><input type="number" id="rev6" min="0" max="660" value="60"></td><td align="center"><div id="next_arrival6"></div></td></tr>
+    <tr><td><br></td></tr>
+</tbody>
+</table>
+</body>
+</html>
