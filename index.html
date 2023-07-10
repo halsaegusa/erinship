@@ -100,12 +100,12 @@ function drawChart(){
     var time_left6 = new Date(next_departure_time6-now);
     
     if(erin_time_switch){
-        var time_left1f = getErinTime(time_left1);
-        var time_left2f = getErinTime(time_left2);
-        var time_left3f = getErinTime(time_left3);
-        var time_left4f = getErinTime(time_left4);
-        var time_left5f = getErinTime(time_left5);
-        var time_left6f = getErinTime(time_left6);
+        var time_left1f = getErinTimeSecond(next_departure_time1-now);
+        var time_left2f = getErinTimeSecond(next_departure_time2-now);
+        var time_left3f = getErinTimeSecond(next_departure_time3-now);
+        var time_left4f = getErinTimeSecond(next_departure_time4-now);
+        var time_left5f = getErinTimeSecond(next_departure_time5-now);
+        var time_left6f = getErinTimeSecond(next_departure_time6-now);
     }else{
         var time_left1f = formatRealTime(time_left1).slice(3);
         var time_left2f = formatRealTime(time_left2).slice(3);
@@ -205,9 +205,15 @@ function getErinTime(realtime = new Date()){
     var sampleErinTime = 2;
     var sampleRealTime = new Date("2023-07-10T18:38:11");
     var ErinHourSecond = 90;
-    if(realtime)var now = new Date();
     var ErinTime=(((realtime.getTime()-sampleRealTime.getTime())/(ErinHourSecond*1000)+sampleErinTime)%24) ;
     if( ErinTime<0) ErinTime=ErinTime+24;
+    var ErinHour = Math.trunc(ErinTime);
+    var ErinMinute = Math.trunc((ErinTime - ErinHour)*60);
+    return "ET "+ErinHour.toString().padStart(2,"0") + ":" + ErinMinute.toString().padStart(2,"0");
+}
+function getErinTimeSecond(msec){
+    var ErinHourSeconds = 90;
+    var ErinTime=msec/(ErinHourSeconds*1000);
     var ErinHour = Math.trunc(ErinTime);
     var ErinMinute = Math.trunc((ErinTime - ErinHour)*60);
     return "ET "+ErinHour.toString().padStart(2,"0") + ":" + ErinMinute.toString().padStart(2,"0");
