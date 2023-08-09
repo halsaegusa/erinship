@@ -6,12 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/js/bootstrap5-toggle.jquery.min.js"></script>
-</head>
-<body>
 <script type="text/javascript">
-function systemlog(log){
-    document.getElementById("chart_div").innerHTML=document.getElementById("chart_div").innerHTML+"<br>"+log;
-}
 // Load the Visualization API and the corechart package.
 google.charts.load("current",{'packages':['table','corechart']});
 
@@ -20,14 +15,30 @@ google.charts.setOnLoadCallback(setInt);
 
 function setInt(){
 setdata();
-setInterval(drawChart,1000);
+setInterval(function(){
+    drawChart("chart_div1","1",6);
+    drawChart("chart_div2","2",6);
+    drawChart("chart_div3","3",11);
+    drawChart("chart_div4","4",11);
+    drawChart("chart_div5","5",11);
+    drawChart("chart_div6","6",11);
+    drawChart("chart_div7","7",11);
+    drawChart("chart_div8","8",11);
+},1000);
+  $("input[type='checkbox']").on('change', function(){                 //チェックボックス（type='checkbox'）の値が変更されたとき・・・
 
-$("input").on("change",savedata);
-
+    cbv = $(this).val();                                               //クリックされたチェックボックスのvalue値を変数に格納
+    if( $(this).prop('checked')){                                      //もしクリックされたチェックボックスがチェックされていたら・・・
+      $("input:checkbox[value='" + cbv + "']").bootstrapToggle('on',true);   //同じvalueを持つチェックボックスは全部チェックを入れる
+    }else{
+      $("input:checkbox[value='" + cbv + "']").bootstrapToggle('off',true);  //逆にチェックが外れていたら全部チェックを外す。
+    }
+  });
+      $("input").on("change",savedata);
 
 }
 
-function drawChart(){
+function drawChart(div_id="",revnumber="1",departure_interval=6){
 
     //現実時間表示 - 表示エリン時間
     var erin_time_switch = document.getElementById("time_switch").checked;
@@ -35,12 +46,12 @@ function drawChart(){
     //基準日時
     var base_datetime=new Date('2023/07/05 11:00:00');
     //補正値ミリ秒。船の出航間隔は11分（カブベルファストは6分）なので、最大660000。
-    var rivised_value1 = Number(document.getElementById("rev1").value)*1000;
-    var rivised_value2 = Number(document.getElementById("rev2").value)*1000;
-    var rivised_value3 = Number(document.getElementById("rev3").value)*1000;
-    var rivised_value4 = Number(document.getElementById("rev4").value)*1000;
-    var rivised_value5 = Number(document.getElementById("rev5").value)*1000;
-    var rivised_value6 = Number(document.getElementById("rev6").value)*1000;
+    var rivised_value1 = Number(document.getElementById("rev"+revnumber+"1").value)*1000;
+    var rivised_value2 = Number(document.getElementById("rev"+revnumber+"2").value)*1000;
+    var rivised_value3 = Number(document.getElementById("rev"+revnumber+"3").value)*1000;
+    var rivised_value4 = Number(document.getElementById("rev"+revnumber+"4").value)*1000;
+    var rivised_value5 = Number(document.getElementById("rev"+revnumber+"5").value)*1000;
+    var rivised_value6 = Number(document.getElementById("rev"+revnumber+"6").value)*1000;
     var base_datetime1 = new Date();
     var base_datetime2 = new Date();
     var base_datetime3 = new Date();
@@ -61,7 +72,6 @@ function drawChart(){
     var next_departure_time5 = new Date();
     var next_departure_time6 = new Date();
     var now = new Date();
-    var departure_interval = 6;
     next_departure_time1.setTime(base_datetime1.getTime()+Math.ceil((now.getTime()-base_datetime1.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
     next_departure_time2.setTime(base_datetime2.getTime()+Math.ceil((now.getTime()-base_datetime2.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
     next_departure_time3.setTime(base_datetime3.getTime()+Math.ceil((now.getTime()-base_datetime3.getTime())/(departure_interval*60*1000))*(departure_interval*60*1000));
@@ -84,12 +94,12 @@ function drawChart(){
         var next_departure_time5f = formatRealTime(next_departure_time5);
         var next_departure_time6f = formatRealTime(next_departure_time6);
     }
-    document.getElementById("next_departure1").innerHTML=next_departure_time1f;
-    document.getElementById("next_departure2").innerHTML=next_departure_time2f;
-    document.getElementById("next_departure3").innerHTML=next_departure_time3f;
-    document.getElementById("next_departure4").innerHTML=next_departure_time4f;
-    document.getElementById("next_departure5").innerHTML=next_departure_time5f;
-    document.getElementById("next_departure6").innerHTML=next_departure_time6f;
+    document.getElementById("next_departure"+revnumber+"1").innerHTML=next_departure_time1f;
+    document.getElementById("next_departure"+revnumber+"2").innerHTML=next_departure_time2f;
+    document.getElementById("next_departure"+revnumber+"3").innerHTML=next_departure_time3f;
+    document.getElementById("next_departure"+revnumber+"4").innerHTML=next_departure_time4f;
+    document.getElementById("next_departure"+revnumber+"5").innerHTML=next_departure_time5f;
+    document.getElementById("next_departure"+revnumber+"6").innerHTML=next_departure_time6f;
 
     //残り時間
     var time_left1 = new Date(next_departure_time1-now);
@@ -155,7 +165,7 @@ function drawChart(){
  //   options.hAxis.viewWindow.max = new Date(0);
 
     //Instantiate and draw our chart, passing in some options.
-    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+    var chart = new google.visualization.BarChart(document.getElementById(div_id));
     chart.draw(data,options);
 
     //到着待ち時間(分)
@@ -183,27 +193,30 @@ function drawChart(){
         var next_arrival6f = formatRealTime(next_arrival6);
     }
 
-    document.getElementById("next_arrival1").innerHTML=next_arrival1f;
-    document.getElementById("next_arrival2").innerHTML=next_arrival2f;
-    document.getElementById("next_arrival3").innerHTML=next_arrival3f;
-    document.getElementById("next_arrival4").innerHTML=next_arrival4f;
-    document.getElementById("next_arrival5").innerHTML=next_arrival5f;
-    document.getElementById("next_arrival6").innerHTML=next_arrival6f;
+    document.getElementById("next_arrival"+revnumber+"1").innerHTML=next_arrival1f;
+    document.getElementById("next_arrival"+revnumber+"2").innerHTML=next_arrival2f;
+    document.getElementById("next_arrival"+revnumber+"3").innerHTML=next_arrival3f;
+    document.getElementById("next_arrival"+revnumber+"4").innerHTML=next_arrival4f;
+    document.getElementById("next_arrival"+revnumber+"5").innerHTML=next_arrival5f;
+    document.getElementById("next_arrival"+revnumber+"6").innerHTML=next_arrival6f;
 
     if(erin_time_switch){
-        document.getElementById("time_display").innerHTML=getErinTime(now);
+        $('label[name="time_display"]').text(getErinTime(now));
     }else{
-        document.getElementById("time_display").innerHTML=formatRealTime(now);
+        $('label[name="time_display"]').text(formatRealTime(now))   ;
     }
 
 }
+
 function formatRealTime(realtime = new Date()){
     return realtime.getHours().toString().padStart(2, "0")+":"+realtime.getMinutes().toString().padStart(2, "0")+":"+realtime.getSeconds().toString().padStart(2, "0");
 }
 function getErinTime(realtime = new Date()){
+    var rivised_value = Number(document.getElementById("rev").value)*1000;
 
     var sampleErinTime = 2;
     var sampleRealTime = new Date("2023-07-10T18:38:11");
+    sampleRealTime.setTime(sampleRealTime.getTime()+rivised_value);
     var ErinHourSecond = 90;
     var ErinTime=(((realtime.getTime()-sampleRealTime.getTime())/(ErinHourSecond*1000)+sampleErinTime)%24) ;
     if( ErinTime<0) ErinTime=ErinTime+24;
@@ -221,27 +234,15 @@ function getErinTimeSecond(msec){
 function savedata(){
 
     var time_switch = $("#time_switch").prop("checked");
-    var rev = $("#rev").val();
-    var rev1 = $("#rev1").val();
-    var rev2 = $("#rev2").val();
-    var rev3 = $("#rev3").val();
-    var rev4 = $("#rev4").val();
-    var rev5 = $("#rev5").val();
-    var rev6 = $("#rev6").val();
+    $("input[type='checkbox']");
+    var data = [['time_switch',time_switch]];
+    $("input[type='number']").each(function(index){
+        data.push([$(this).attr('id'),$(this).val()]);
+    })
     
-    var data = [['time_switch',time_switch],
-                ['rev',rev],
-                ['rev1',rev1],
-                ['rev2',rev2],
-                ['rev3',rev3],
-                ['rev4',rev4],
-                ['rev5',rev5],
-                ['rev6',rev6]];
     var jsondata = JSON.stringify(data);
     //console.log(jsondata);
-    console.log(jsondata);
     localStorage.setItem("jsondata", jsondata);
-    console.log(localStorage.getItem("jsondata"));
 }
 
 function setdata(){
@@ -252,8 +253,6 @@ function setdata(){
 
         data.forEach(function(e){
             if(e[0]=='time_switch'){
-                console.log("test1");
-                console.log(e);
                 if(e[1]){
                     $("#time_switch").bootstrapToggle('on');
                 }else{
@@ -262,29 +261,159 @@ function setdata(){
                 
                 
             }else{
-                console.log("test2");
-                console.log(e[0]);
-                console.log($(e[0]));
                 $("#"+e[0]).val(e[1]);
             }
         });
     }
 }
 </script>
-<div>カブ→ベルファスト</div>
-<input id="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
-<label id="time_display"></label> 補正値<input type="number" id="rev" min="-2160" max="2160" value="10">
-<table height="50%">
-<tbody>
-    <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
-    <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure1"></div></td><td><input type="number" id="rev1" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival1"></div></td></tr>
-    <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure2"></div></td><td><input type="number" id="rev2" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival2"></div></td></tr>
-    <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure3"></div></td><td><input type="number" id="rev3" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival3"></div></td></tr>
-    <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure4"></div></td><td><input type="number" id="rev4" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival4"></div></td></tr>
-    <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure5"></div></td><td><input type="number" id="rev5" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival5"></div></td></tr>
-    <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure6"></div></td><td><input type="number" id="rev6" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival6"></div></td></tr>
-    <tr><td><br></td></tr>
-</tbody>
-</table>
-</body>
+</head>
+<body>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+        <div>カブ→ベルファスト</div>
+        <input id="time_switch" value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 補正値<input type="number" id="rev" min="-2160" max="2160" value="10">
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div1"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure11"></div></td><td><input type="number" id="rev11" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival11"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure12"></div></td><td><input type="number" id="rev12" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival12"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure13"></div></td><td><input type="number" id="rev13" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival13"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure14"></div></td><td><input type="number" id="rev14" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival14"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure15"></div></td><td><input type="number" id="rev15" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival15"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure16"></div></td><td><input type="number" id="rev16" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival16"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <div>カブ←ベルファスト</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div2"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure21"></div></td><td><input type="number" id="rev21" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival21"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure22"></div></td><td><input type="number" id="rev22" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival22"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure23"></div></td><td><input type="number" id="rev23" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival23"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure24"></div></td><td><input type="number" id="rev24" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival24"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure25"></div></td><td><input type="number" id="rev25" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival25"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure26"></div></td><td><input type="number" id="rev26" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival26"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+        <div>カブ→ケルラ</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div3"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure31"></div></td><td><input type="number" id="rev31" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival31"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure32"></div></td><td><input type="number" id="rev32" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival32"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure33"></div></td><td><input type="number" id="rev33" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival33"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure34"></div></td><td><input type="number" id="rev34" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival34"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure35"></div></td><td><input type="number" id="rev35" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival35"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure36"></div></td><td><input type="number" id="rev36" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival36"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <div>カブ←ケルラ</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div4"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure41"></div></td><td><input type="number" id="rev41" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival41"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure42"></div></td><td><input type="number" id="rev42" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival42"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure43"></div></td><td><input type="number" id="rev43" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival43"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure44"></div></td><td><input type="number" id="rev44" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival44"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure45"></div></td><td><input type="number" id="rev45" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival45"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure46"></div></td><td><input type="number" id="rev46" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival46"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+        <div>ケアン→バレス</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div5"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure51"></div></td><td><input type="number" id="rev51" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival51"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure52"></div></td><td><input type="number" id="rev52" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival52"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure53"></div></td><td><input type="number" id="rev53" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival53"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure54"></div></td><td><input type="number" id="rev54" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival54"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure55"></div></td><td><input type="number" id="rev55" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival55"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure56"></div></td><td><input type="number" id="rev56" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival56"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <div>ケアン←バレス</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div6"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure61"></div></td><td><input type="number" id="rev61" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival61"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure62"></div></td><td><input type="number" id="rev62" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival62"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure63"></div></td><td><input type="number" id="rev63" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival63"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure64"></div></td><td><input type="number" id="rev64" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival64"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure65"></div></td><td><input type="number" id="rev65" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival65"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure66"></div></td><td><input type="number" id="rev66" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival66"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+        <div>ケアン→フィリア</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div7"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure71"></div></td><td><input type="number" id="rev71" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival71"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure72"></div></td><td><input type="number" id="rev72" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival72"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure73"></div></td><td><input type="number" id="rev73" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival73"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure74"></div></td><td><input type="number" id="rev74" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival74"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure75"></div></td><td><input type="number" id="rev75" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival75"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure76"></div></td><td><input type="number" id="rev76" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival76"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <div>ケアン←フィリア</div>
+        <input value="time_switch" type="checkbox" data-toggle="toggle" data-size="xs" data-on="エリン時間" data-off="現実時間" data-width="100">
+        <label name="time_display"></label> 
+        <table height="50%">
+        <tbody>
+            <tr><td>ch</td><td>次回出航時間</td><td rowspan="8"><div id="chart_div8"></div></td><td>補正値(秒)s</td><td>次回到着時刻</td></tr>
+            <tr style="height: 30px;"><td>1ch</td><td align="center"><div id="next_departure81"></div></td><td><input type="number" id="rev81" min="-660" max="660" value="10"></td><td align="center"><div id="next_arrival81"></div></td></tr>
+            <tr style="height: 30px;"><td>2ch</td><td align="center"><div id="next_departure82"></div></td><td><input type="number" id="rev82" min="-660" max="660" value="20"></td><td align="center"><div id="next_arrival82"></div></td></tr>
+            <tr style="height: 30px;"><td>3ch</td><td align="center"><div id="next_departure83"></div></td><td><input type="number" id="rev83" min="-660" max="660" value="30"></td><td align="center"><div id="next_arrival83"></div></td></tr>
+            <tr style="height: 30px;"><td>4ch</td><td align="center"><div id="next_departure84"></div></td><td><input type="number" id="rev84" min="-660" max="660" value="40"></td><td align="center"><div id="next_arrival84"></div></td></tr>
+            <tr style="height: 30px;"><td>5ch</td><td align="center"><div id="next_departure85"></div></td><td><input type="number" id="rev85" min="-660" max="660" value="50"></td><td align="center"><div id="next_arrival85"></div></td></tr>
+            <tr style="height: 30px;"><td>6ch</td><td align="center"><div id="next_departure86"></div></td><td><input type="number" id="rev86" min="-660" max="660" value="60"></td><td align="center"><div id="next_arrival86"></div></td></tr>
+            <tr><td><br></td></tr>
+        </tbody>
+        </table>
+    </div>
+  </div>
+</div></body>
 </html>
