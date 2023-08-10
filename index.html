@@ -16,14 +16,14 @@ google.charts.setOnLoadCallback(setInt);
 function setInt(){
 setdata();
 setInterval(function(){
-    drawChart("chart_div1","1",6);
-    drawChart("chart_div2","2",6);
-    drawChart("chart_div3","3",11);
-    drawChart("chart_div4","4",11);
-    drawChart("chart_div5","5",11);
-    drawChart("chart_div6","6",11);
-    drawChart("chart_div7","7",11);
-    drawChart("chart_div8","8",11);
+    drawChart("chart_div1","1",6,2);
+    drawChart("chart_div2","2",6,2);
+    drawChart("chart_div3","3",11,4);
+    drawChart("chart_div4","4",11,4);
+    drawChart("chart_div5","5",11,4);
+    drawChart("chart_div6","6",11,4);
+    drawChart("chart_div7","7",11,4);
+    drawChart("chart_div8","8",11,4);
 },1000);
   $("input[type='checkbox']").on('change', function(){                 //チェックボックス（type='checkbox'）の値が変更されたとき・・・
 
@@ -38,7 +38,7 @@ setInterval(function(){
 
 }
 
-function drawChart(div_id="",revnumber="1",departure_interval=6){
+function drawChart(div_id="",revnumber="1",departure_interval=6,boarding_time=2){
 
     //現実時間表示 - 表示エリン時間
     var erin_time_switch = document.getElementById("time_switch").checked;
@@ -169,8 +169,6 @@ function drawChart(div_id="",revnumber="1",departure_interval=6){
     chart.draw(data,options);
 
     //到着待ち時間(分)
-    var boarding_time=2;
-
     var next_arrival1=new Date(next_departure_time1.getTime()+boarding_time*60*1000);
     var next_arrival2=new Date(next_departure_time2.getTime()+boarding_time*60*1000);
     var next_arrival3=new Date(next_departure_time3.getTime()+boarding_time*60*1000);
